@@ -1,0 +1,19 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Reverse-proxy API calls directly to live Render backend
+[[redirects]]
+  from = "/api/*"
+  to = "https://video-edit-portfolio.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# Single Page Application routing fallback
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -1,0 +1,2 @@
+/api/*  https://video-edit-portfolio.onrender.com/api/:splat  200!
+/*      /index.html                                          200
