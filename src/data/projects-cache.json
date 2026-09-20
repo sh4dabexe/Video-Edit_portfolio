@@ -4,10 +4,12 @@
     "drive_file_id": "12IPn1FI6mV_k-oUzinkdtEd6g1jx_jZl",
     "drive_name": "Barisho me Tum.mp4",
     "title": "Barisho me Tum",
-    "description": "Cinematic edit showcasing rhythm, emotion, and visual storytelling by Shadab Alam.",
-    "category": "Cinematic",
+    "description": "Atmospheric vertical short edit capturing emotion, rhythm, and rain aesthetics by Shadab Alam.",
+    "category": "Reels & Shorts",
+    "is_vertical": true,
+    "aspect_ratio": "9:16",
     "tags": [
-      "Cinematic",
+      "Reel",
       "Color Grading",
       "Sound Design",
       "Narrative",
@@ -23,6 +25,6 @@
     "published": true,
     "sort_order": 0,
     "created_at": "2026-09-20T13:36:28.994Z",
-    "updated_at": "2026-09-20T13:53:45.978Z"
+    "updated_at": "2026-09-20T14:10:00.000Z"
   }
 ]
