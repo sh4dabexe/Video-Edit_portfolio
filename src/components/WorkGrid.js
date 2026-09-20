@@ -81,7 +81,10 @@ function renderCard(project) {
     </div>
     <div class="card-info">
       <div class="card-meta-row">
-        <span class="card-category-badge">${project.category || 'Cinematic'}</span>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span class="card-category-badge">${project.category || 'Cinematic'}</span>
+          <span class="card-category-badge" style="font-size: 0.72rem; opacity: 0.85;">${project.is_vertical ? '9:16 Reel' : '16:9 Cinema'}</span>
+        </div>
         <span>${formatFileSize(project.file_size)}</span>
       </div>
       <h3 class="card-title">${project.title}</h3>

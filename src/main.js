@@ -8,7 +8,7 @@ import { renderFooter } from './components/Footer.js';
 import { renderVideoModal, initVideoModalEvents } from './components/VideoModal.js';
 import { fetchProjects } from './services/api.js';
 
-// Pre-load cached projects if available for instant paint
+// Pre-load cached projects if available for instant initial paint
 import cachedProjects from './data/projects-cache.json';
 
 async function initApp() {
@@ -38,21 +38,26 @@ async function initApp() {
   }
 
   // Define refresh logic
-  const loadData = async () => {
+  const loadData = async (forceRefresh = false) => {
     try {
-      const projects = await fetchProjects();
+      const projects = await fetchProjects(forceRefresh);
       if (projects && projects.length > 0) {
         updateWorkGrid(projects);
       }
     } catch (err) {
-      console.error('Failed to load portfolio projects:', err);
+      console.warn('Portfolio load check:', err.message);
     }
   };
 
-  initWorkGridEvents(loadData);
+  initWorkGridEvents(() => loadData(true));
 
-  // Fetch latest projects in background
-  await loadData();
+  // Automatically fetch latest live projects on page load
+  await loadData(true);
+
+  // Background Automatic Sync: Periodically poll for new Google Drive video uploads every 10s
+  setInterval(() => {
+    loadData(true);
+  }, 10000);
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

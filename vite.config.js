@@ -12,6 +12,42 @@ const supabaseKey = process.env.supa_publishable_key || process.env.VITE_SUPABAS
 const gdriveLink = process.env.gdrive_fodler_link || process.env.VITE_GDRIVE_FOLDER_LINK;
 const folderId = extractFolderId(gdriveLink);
 
+// Global in-memory cache & throttle
+let inMemoryProjects = [];
+let lastSyncTimestamp = 0;
+const SYNC_THROTTLE_MS = 10000; // 10 seconds
+
+async function getOrSyncProjects(force = false) {
+  const now = Date.now();
+  const cachePath = path.resolve(__dirname, 'src/data/projects-cache.json');
+
+  // If memory has items and was synced recently, return immediately
+  if (!force && inMemoryProjects.length > 0 && now - lastSyncTimestamp < SYNC_THROTTLE_MS) {
+    return inMemoryProjects;
+  }
+
+  try {
+    const fresh = await fetchDriveFolderVideos(folderId);
+    inMemoryProjects = fresh;
+    lastSyncTimestamp = Date.now();
+    fs.writeFileSync(cachePath, JSON.stringify(fresh, null, 2), 'utf-8');
+    return fresh;
+  } catch (err) {
+    console.warn('Auto-sync fetch error (using fallback cache):', err.message);
+    if (inMemoryProjects.length > 0) return inMemoryProjects;
+    if (fs.existsSync(cachePath)) {
+      inMemoryProjects = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
+      return inMemoryProjects;
+    }
+    return [];
+  }
+}
+
+// Background auto-polling (every 20 seconds)
+setInterval(() => {
+  getOrSyncProjects(true).catch(e => console.warn('Background auto-sync:', e.message));
+}, 20000);
+
 // Vite API plugin to serve backend endpoints
 function portfolioApiPlugin() {
   return {
@@ -21,7 +57,6 @@ function portfolioApiPlugin() {
         const rawUrl = req.url || '';
         const pathname = rawUrl.split('?')[0];
 
-        // Ensure no browser HTTP caching for API routes
         const setNoCacheHeaders = () => {
           res.setHeader('Content-Type', 'application/json');
           res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -29,21 +64,11 @@ function portfolioApiPlugin() {
           res.setHeader('Expires', '0');
         };
 
-        // GET /api/projects
+        // GET /api/projects - Automatic live sync with Google Drive
         if (pathname === '/api/projects' && req.method === 'GET') {
           try {
             setNoCacheHeaders();
-            const cachePath = path.resolve(__dirname, 'src/data/projects-cache.json');
-            let projects = [];
-            
-            // Check if client requested fresh scan (?t=... or ?fresh=1)
-            const isFreshRequested = rawUrl.includes('?') || !fs.existsSync(cachePath);
-            if (isFreshRequested) {
-              projects = await fetchDriveFolderVideos(folderId);
-              fs.writeFileSync(cachePath, JSON.stringify(projects, null, 2), 'utf-8');
-            } else {
-              projects = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
-            }
+            const projects = await getOrSyncProjects(false);
             return res.end(JSON.stringify(projects));
           } catch (err) {
             res.statusCode = 500;
@@ -57,13 +82,7 @@ function portfolioApiPlugin() {
           const id = playbackMatch[1];
           try {
             setNoCacheHeaders();
-            const cachePath = path.resolve(__dirname, 'src/data/projects-cache.json');
-            let projects = [];
-            if (fs.existsSync(cachePath)) {
-              projects = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
-            } else {
-              projects = await fetchDriveFolderVideos(folderId);
-            }
+            const projects = await getOrSyncProjects(false);
             const project = projects.find(p => p.id === id || p.drive_file_id === id);
             if (!project) {
               res.statusCode = 404;
@@ -83,13 +102,7 @@ function portfolioApiPlugin() {
           const id = detailMatch[1];
           try {
             setNoCacheHeaders();
-            const cachePath = path.resolve(__dirname, 'src/data/projects-cache.json');
-            let projects = [];
-            if (fs.existsSync(cachePath)) {
-              projects = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
-            } else {
-              projects = await fetchDriveFolderVideos(folderId);
-            }
+            const projects = await getOrSyncProjects(false);
             const project = projects.find(p => p.id === id || p.drive_file_id === id);
             if (!project) {
               res.statusCode = 404;
@@ -102,18 +115,17 @@ function portfolioApiPlugin() {
           }
         }
 
-        // POST /api/sync
+        // POST /api/sync - Explicit manual sync
         if (pathname === '/api/sync' && req.method === 'POST') {
           try {
             setNoCacheHeaders();
-            const result = await syncProjects({
-              supabaseUrl,
-              supabaseKey,
-              folderId
-            });
-            const cachePath = path.resolve(__dirname, 'src/data/projects-cache.json');
-            fs.writeFileSync(cachePath, JSON.stringify(result.projects, null, 2), 'utf-8');
-            return res.end(JSON.stringify({ success: true, ...result }));
+            const fresh = await getOrSyncProjects(true);
+            return res.end(JSON.stringify({
+              success: true,
+              totalScanned: fresh.length,
+              published: fresh.length,
+              projects: fresh
+            }));
           } catch (err) {
             res.statusCode = 500;
             return res.end(JSON.stringify({ error: err.message }));
