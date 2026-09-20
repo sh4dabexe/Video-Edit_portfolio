@@ -28,9 +28,16 @@ async function getOrSyncProjects(force = false) {
 
   try {
     const fresh = await fetchDriveFolderVideos(folderId);
+    const existingIds = inMemoryProjects.map(p => p.drive_file_id).join(',');
+    const freshIds = fresh.map(p => p.drive_file_id).join(',');
+    
     inMemoryProjects = fresh;
     lastSyncTimestamp = Date.now();
-    fs.writeFileSync(cachePath, JSON.stringify(fresh, null, 2), 'utf-8');
+
+    // Only write to disk if videos were added, removed, or cache file does not exist
+    if (!fs.existsSync(cachePath) || existingIds !== freshIds) {
+      fs.writeFileSync(cachePath, JSON.stringify(fresh, null, 2), 'utf-8');
+    }
     return fresh;
   } catch (err) {
     console.warn('Auto-sync fetch error (using fallback cache):', err.message);
