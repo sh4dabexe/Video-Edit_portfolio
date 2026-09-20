@@ -160,7 +160,7 @@ export async function fetchDriveFolderVideos(folderId = DEFAULT_GDRIVE_FOLDER_ID
           published: true,
           sort_order: foundVideos.length,
           created_at: new Date(modifiedTimestamp).toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date(modifiedTimestamp).toISOString()
         });
       }
       for (const child of obj) {
