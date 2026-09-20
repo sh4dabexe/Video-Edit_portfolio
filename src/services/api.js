@@ -6,12 +6,16 @@
 import { fetchDriveFolderVideos } from './driveSync.js';
 import { getPlaybackSource } from './playbackAdapter.js';
 
-// Cache for instant rendering
+// In-memory cache
 let cachedProjects = null;
 
-export async function fetchProjects() {
+export async function fetchProjects(forceRefresh = false) {
   try {
-    const res = await fetch('/api/projects');
+    const url = forceRefresh ? `/api/projects?t=${Date.now()}` : '/api/projects';
+    const res = await fetch(url, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    });
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
@@ -24,7 +28,7 @@ export async function fetchProjects() {
   }
 
   // Direct client-side Drive fallback (guarantees site works 100% of the time)
-  if (cachedProjects && cachedProjects.length > 0) {
+  if (!forceRefresh && cachedProjects && cachedProjects.length > 0) {
     return cachedProjects;
   }
 
@@ -34,7 +38,7 @@ export async function fetchProjects() {
     return fallbackProjects;
   } catch (syncErr) {
     console.error('Failed to fetch from fallback Drive sync:', syncErr);
-    return [];
+    return cachedProjects || [];
   }
 }
 
@@ -45,7 +49,9 @@ export async function fetchProjectById(id) {
 
 export async function fetchPlaybackSource(projectId) {
   try {
-    const res = await fetch(`/api/projects/${projectId}/playback`);
+    const res = await fetch(`/api/projects/${projectId}/playback?t=${Date.now()}`, {
+      cache: 'no-store'
+    });
     if (res.ok) {
       return await res.json();
     }
@@ -61,10 +67,18 @@ export async function fetchPlaybackSource(projectId) {
 
 export async function triggerSync() {
   try {
-    const res = await fetch('/api/sync', { method: 'POST' });
+    const res = await fetch(`/api/sync?t=${Date.now()}`, {
+      method: 'POST',
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    });
     if (res.ok) {
       const data = await res.json();
-      cachedProjects = null; // Invalidate cache
+      if (data && data.projects && data.projects.length > 0) {
+        cachedProjects = data.projects;
+      } else {
+        cachedProjects = null;
+      }
       return data;
     }
   } catch (err) {
@@ -74,5 +88,5 @@ export async function triggerSync() {
   // Client-side fallback sync
   const fresh = await fetchDriveFolderVideos();
   cachedProjects = fresh;
-  return { success: true, count: fresh.length, projects: fresh };
+  return { success: true, totalScanned: fresh.length, published: fresh.length, projects: fresh };
 }

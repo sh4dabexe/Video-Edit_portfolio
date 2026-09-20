@@ -155,10 +155,17 @@ export function initWorkGridEvents(onRefreshNeeded) {
 
       try {
         const result = await triggerSync();
-        if (onRefreshNeeded) {
+        const freshProjects = (result && result.projects && result.projects.length > 0)
+          ? result.projects
+          : (onRefreshNeeded ? await onRefreshNeeded() : []);
+
+        if (freshProjects && freshProjects.length > 0) {
+          updateWorkGrid(freshProjects);
+        } else if (onRefreshNeeded) {
           await onRefreshNeeded();
         }
-        showSyncToast(`Drive sync completed! Found ${result.projects?.length || 0} videos.`);
+
+        showSyncToast(`Drive sync completed! Found ${freshProjects?.length || 0} videos.`);
       } catch (err) {
         showSyncToast('Sync error: ' + err.message);
       } finally {

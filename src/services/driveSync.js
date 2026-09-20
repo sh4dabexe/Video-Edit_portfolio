@@ -24,7 +24,7 @@ export function formatProjectTitle(filename) {
   if (!filename) return 'Untitled Project';
   // Remove file extension
   let clean = filename.replace(/\.(mp4|mov|mkv|avi|webm|m4v)$/i, '');
-  // Replace underscores and dashes with spaces if appropriate
+  // Replace underscores and dashes with spaces
   clean = clean.replace(/[_]/g, ' ').trim();
   return clean || filename;
 }
@@ -59,7 +59,7 @@ export function generateTags(filename, category) {
   tags.add('Sound Design');
   
   const lower = filename.toLowerCase();
-  if (lower.includes('tum') || lower.includes('barish')) {
+  if (lower.includes('tum') || lower.includes('barish') || lower.includes('lagda')) {
     tags.add('Narrative');
     tags.add('Cinematic Mood');
   }
@@ -68,6 +68,28 @@ export function generateTags(filename, category) {
     tags.add('Motion Graphics');
   }
   return Array.from(tags);
+}
+
+/**
+ * Fast helper to detect image dimensions from thumbnail bytes
+ */
+async function detectDimensions(fileId) {
+  try {
+    const res = await fetch(`https://drive.google.com/thumbnail?id=${fileId}&sz=w600`);
+    if (!res.ok) return null;
+    const buf = await res.arrayBuffer();
+    const view = new DataView(buf);
+    for (let i = 0; i < buf.byteLength - 8; i++) {
+      if (view.getUint8(i) === 0xFF && (view.getUint8(i+1) === 0xC0 || view.getUint8(i+1) === 0xC2)) {
+        const height = view.getUint16(i + 5);
+        const width = view.getUint16(i + 7);
+        return { width, height, isVertical: height > width };
+      }
+    }
+  } catch (err) {
+    // ignore
+  }
+  return null;
 }
 
 /**
@@ -125,6 +147,8 @@ export async function fetchDriveFolderVideos(folderId = DEFAULT_GDRIVE_FOLDER_ID
           title: formatProjectTitle(driveName),
           description: `Cinematic edit showcasing rhythm, emotion, and visual storytelling by Shadab Alam.`,
           category,
+          is_vertical: false,
+          aspect_ratio: '16:9',
           tags: generateTags(driveName, category),
           video_url: `https://drive.google.com/uc?id=${fileId}&export=download`,
           thumbnail_url: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`,
@@ -146,6 +170,20 @@ export async function fetchDriveFolderVideos(folderId = DEFAULT_GDRIVE_FOLDER_ID
   }
 
   scanForVideos(rawData);
+
+  // Detect dimensions and aspect ratios for all videos in parallel
+  await Promise.all(foundVideos.map(async (v) => {
+    const dims = await detectDimensions(v.drive_file_id);
+    if (dims) {
+      v.is_vertical = dims.isVertical;
+      v.aspect_ratio = dims.isVertical ? '9:16' : '16:9';
+      if (dims.isVertical) {
+        v.category = 'Reels & Shorts';
+        v.tags = generateTags(v.drive_name, 'Reels & Shorts');
+      }
+    }
+  }));
+
   return foundVideos;
 }
 

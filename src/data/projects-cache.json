@@ -4,12 +4,12 @@
     "drive_file_id": "12IPn1FI6mV_k-oUzinkdtEd6g1jx_jZl",
     "drive_name": "Barisho me Tum.mp4",
     "title": "Barisho me Tum",
-    "description": "Atmospheric vertical short edit capturing emotion, rhythm, and rain aesthetics by Shadab Alam.",
+    "description": "Cinematic edit showcasing rhythm, emotion, and visual storytelling by Shadab Alam.",
     "category": "Reels & Shorts",
     "is_vertical": true,
     "aspect_ratio": "9:16",
     "tags": [
-      "Reel",
+      "Reels & Shorts",
       "Color Grading",
       "Sound Design",
       "Narrative",
@@ -25,6 +25,34 @@
     "published": true,
     "sort_order": 0,
     "created_at": "2026-09-20T13:36:28.994Z",
-    "updated_at": "2026-09-20T14:10:00.000Z"
+    "updated_at": "2026-09-20T14:17:25.976Z"
+  },
+  {
+    "id": "1Axv1vyI_JY7bY62jvaJrtzb3G04foye7",
+    "drive_file_id": "1Axv1vyI_JY7bY62jvaJrtzb3G04foye7",
+    "drive_name": "Lagda hai tum se.mp4",
+    "title": "Lagda hai tum se",
+    "description": "Cinematic edit showcasing rhythm, emotion, and visual storytelling by Shadab Alam.",
+    "category": "Reels & Shorts",
+    "is_vertical": true,
+    "aspect_ratio": "9:16",
+    "tags": [
+      "Reels & Shorts",
+      "Color Grading",
+      "Sound Design",
+      "Narrative",
+      "Cinematic Mood"
+    ],
+    "video_url": "https://drive.google.com/uc?id=1Axv1vyI_JY7bY62jvaJrtzb3G04foye7&export=download",
+    "thumbnail_url": "https://drive.google.com/thumbnail?id=1Axv1vyI_JY7bY62jvaJrtzb3G04foye7&sz=w1200",
+    "embed_url": "https://drive.google.com/file/d/1Axv1vyI_JY7bY62jvaJrtzb3G04foye7/preview",
+    "mime_type": "video/mp4",
+    "file_size": 9630059,
+    "duration": 0,
+    "sync_status": "published",
+    "published": true,
+    "sort_order": 1,
+    "created_at": "2026-09-20T14:10:02.796Z",
+    "updated_at": "2026-09-20T14:17:25.976Z"
   }
 ]
