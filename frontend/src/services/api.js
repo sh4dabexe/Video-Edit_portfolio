@@ -6,7 +6,8 @@
 import { getPlaybackSource } from './playbackAdapter.js';
 import cachedFallback from '../data/projects-cache.json';
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const DEFAULT_RENDER_BACKEND = 'https://video-edit-portfolio.onrender.com';
+const API_BASE_URL = (import.meta.env.VITE_API_URL || DEFAULT_RENDER_BACKEND).replace(/\/$/, '');
 
 let inMemoryProjects = null;
 
