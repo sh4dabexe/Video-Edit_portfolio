@@ -1,6 +1,11 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { fetchDriveFolderVideos, extractFolderId } from '../src/services/driveSync.js';
 import { getPlaybackSource } from '../src/services/playbackAdapter.js';
-import cachedFallback from '../src/data/projects-cache.json';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const gdriveLink = process.env.gdrive_fodler_link || process.env.VITE_GDRIVE_FOLDER_LINK;
 const folderId = extractFolderId(gdriveLink);
@@ -8,6 +13,18 @@ const folderId = extractFolderId(gdriveLink);
 let memoryCache = null;
 let lastSyncTime = 0;
 const CACHE_TTL = 15000; // 15 seconds
+
+function getFallbackProjects() {
+  try {
+    const cachePath = path.resolve(__dirname, '../src/data/projects-cache.json');
+    if (fs.existsSync(cachePath)) {
+      return JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
+    }
+  } catch (e) {
+    // fallback
+  }
+  return [];
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -31,7 +48,7 @@ export default async function handler(req, res) {
         lastSyncTime = now;
       } catch (err) {
         console.warn('Vercel live fetch failed, using fallback cache:', err.message);
-        projects = cachedFallback || [];
+        projects = getFallbackProjects();
       }
     }
 
@@ -57,6 +74,6 @@ export default async function handler(req, res) {
     return res.status(200).json(projects);
   } catch (error) {
     console.error('API projects error:', error);
-    return res.status(500).json({ error: error.message, projects: cachedFallback || [] });
+    return res.status(500).json({ error: error.message, projects: getFallbackProjects() });
   }
 }
