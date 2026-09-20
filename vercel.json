@@ -1,0 +1,21 @@
+{
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/projects/:id/playback",
+      "destination": "/api/projects?id=:id&playback=true"
+    },
+    {
+      "source": "/api/projects/:id",
+      "destination": "/api/projects?id=:id"
+    },
+    {
+      "source": "/api/projects",
+      "destination": "/api/projects"
+    },
+    {
+      "source": "/api/sync",
+      "destination": "/api/sync"
+    }
+  ]
+}
