@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: video-portfolio-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: supa_url
+        sync: false
+      - key: supa_publishable_key
+        sync: false
+      - key: gdrive_fodler_link
+        sync: false
