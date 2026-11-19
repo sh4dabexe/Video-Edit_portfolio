@@ -22,6 +22,7 @@ export async function fetchProjects(forceRefresh = false) {
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
+        data.sort((a, b) => (a.sort_order ?? 999999) - (b.sort_order ?? 999999));
         inMemoryProjects = data;
         return data;
       }
@@ -34,7 +35,8 @@ export async function fetchProjects(forceRefresh = false) {
   if (inMemoryProjects && inMemoryProjects.length > 0) {
     return inMemoryProjects;
   }
-  return cachedFallback || [];
+  const fallback = (cachedFallback || []).slice().sort((a, b) => (a.sort_order ?? 999999) - (b.sort_order ?? 999999));
+  return fallback;
 }
 
 export async function fetchProjectById(id) {

@@ -63,10 +63,19 @@ async function getOrSyncProjects(force = false) {
 
   try {
     const fresh = await fetchDriveFolderVideos(folderId);
+    fresh.sort((a, b) => (a.sort_order ?? 999999) - (b.sort_order ?? 999999));
     inMemoryProjects = fresh;
     lastSyncTimestamp = Date.now();
 
     fs.writeFileSync(cachePath, JSON.stringify(fresh, null, 2), 'utf-8');
+
+    // Also update frontend cache if frontend directory exists locally
+    const frontendCacheDir = path.join(rootDir, '..', 'frontend', 'src', 'data');
+    if (fs.existsSync(frontendCacheDir)) {
+      const frontendCachePath = path.join(frontendCacheDir, 'projects-cache.json');
+      fs.writeFileSync(frontendCachePath, JSON.stringify(fresh, null, 2), 'utf-8');
+    }
+
     return fresh;
   } catch (err) {
     console.warn('Google Drive sync warning (serving cached data):', err.message);
@@ -149,9 +158,16 @@ app.post('/api/sync', async (req, res) => {
       supabaseKey,
       folderId
     });
+    result.projects.sort((a, b) => (a.sort_order ?? 999999) - (b.sort_order ?? 999999));
     inMemoryProjects = result.projects;
     lastSyncTimestamp = Date.now();
     fs.writeFileSync(cachePath, JSON.stringify(result.projects, null, 2), 'utf-8');
+
+    const frontendCacheDir = path.join(rootDir, '..', 'frontend', 'src', 'data');
+    if (fs.existsSync(frontendCacheDir)) {
+      const frontendCachePath = path.join(frontendCacheDir, 'projects-cache.json');
+      fs.writeFileSync(frontendCachePath, JSON.stringify(result.projects, null, 2), 'utf-8');
+    }
 
     res.json({
       success: true,

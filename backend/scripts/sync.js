@@ -30,12 +30,24 @@ async function run() {
       folderId
     });
 
+    // 1. Save to backend data
     const dataDir = path.join(rootDir, 'data');
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
     const cachePath = path.join(dataDir, 'projects-cache.json');
     fs.writeFileSync(cachePath, JSON.stringify(result.projects, null, 2), 'utf-8');
+
+    // 2. Save to frontend src data if frontend folder exists
+    const frontendDataDir = path.join(rootDir, '..', 'frontend', 'src', 'data');
+    if (fs.existsSync(path.dirname(frontendDataDir))) {
+      if (!fs.existsSync(frontendDataDir)) {
+        fs.mkdirSync(frontendDataDir, { recursive: true });
+      }
+      const frontendCachePath = path.join(frontendDataDir, 'projects-cache.json');
+      fs.writeFileSync(frontendCachePath, JSON.stringify(result.projects, null, 2), 'utf-8');
+      console.log(`💾 Synced to frontend cache: ${frontendCachePath}`);
+    }
 
     console.log(`✅ Synced ${result.projects.length} videos to ${cachePath}`);
     result.projects.forEach((p, idx) => {

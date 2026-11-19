@@ -122,6 +122,7 @@ export async function fetchDriveFolderVideos(folderId = DEFAULT_GDRIVE_FOLDER_ID
 
   const rawData = JSON.parse(unescaped);
   const foundVideos = [];
+  const seenIds = new Set();
 
   function scanForVideos(obj) {
     if (!obj || typeof obj !== 'object') return;
@@ -133,34 +134,37 @@ export async function fetchDriveFolderVideos(folderId = DEFAULT_GDRIVE_FOLDER_ID
         obj[3].startsWith('video/')
       ) {
         const fileId = obj[0];
-        const driveName = obj[2];
-        const mimeType = obj[3];
-        const fileSize = typeof obj[13] === 'number' ? obj[13] : 0;
-        const modifiedTimestamp = typeof obj[10] === 'number' ? obj[10] : Date.now();
-        const category = inferCategory(driveName);
+        if (!seenIds.has(fileId)) {
+          seenIds.add(fileId);
+          const driveName = obj[2];
+          const mimeType = obj[3];
+          const fileSize = typeof obj[13] === 'number' ? obj[13] : 0;
+          const modifiedTimestamp = typeof obj[10] === 'number' ? obj[10] : Date.now();
+          const category = inferCategory(driveName);
 
-        foundVideos.push({
-          id: fileId,
-          drive_file_id: fileId,
-          drive_name: driveName,
-          title: formatProjectTitle(driveName),
-          description: `Cinematic edit showcasing rhythm, emotion, and visual storytelling by Shadab Alam.`,
-          category,
-          is_vertical: false,
-          aspect_ratio: '16:9',
-          tags: generateTags(driveName, category),
-          video_url: `https://drive.google.com/uc?id=${fileId}&export=download`,
-          thumbnail_url: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`,
-          embed_url: `https://drive.google.com/file/d/${fileId}/preview`,
-          mime_type: mimeType,
-          file_size: fileSize,
-          duration: 0,
-          sync_status: 'published',
-          published: true,
-          sort_order: foundVideos.length,
-          created_at: new Date(modifiedTimestamp).toISOString(),
-          updated_at: new Date(modifiedTimestamp).toISOString()
-        });
+          foundVideos.push({
+            id: fileId,
+            drive_file_id: fileId,
+            drive_name: driveName,
+            title: formatProjectTitle(driveName),
+            description: `Cinematic edit showcasing rhythm, emotion, and visual storytelling by Shadab Alam.`,
+            category,
+            is_vertical: false,
+            aspect_ratio: '16:9',
+            tags: generateTags(driveName, category),
+            video_url: `https://drive.google.com/uc?id=${fileId}&export=download`,
+            thumbnail_url: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`,
+            embed_url: `https://drive.google.com/file/d/${fileId}/preview`,
+            mime_type: mimeType,
+            file_size: fileSize,
+            duration: 0,
+            sync_status: 'published',
+            published: true,
+            sort_order: foundVideos.length,
+            created_at: new Date(modifiedTimestamp).toISOString(),
+            updated_at: new Date(modifiedTimestamp).toISOString()
+          });
+        }
       }
       for (const child of obj) {
         scanForVideos(child);
@@ -182,6 +186,9 @@ export async function fetchDriveFolderVideos(folderId = DEFAULT_GDRIVE_FOLDER_ID
       }
     }
   }));
+
+  // Ensure strict sort order preservation matching Google Drive listing
+  foundVideos.sort((a, b) => a.sort_order - b.sort_order);
 
   return foundVideos;
 }

@@ -106,7 +106,12 @@ function renderCard(project) {
 }
 
 export function updateWorkGrid(projects) {
-  allProjects = projects || [];
+  // Always maintain strict Google Drive folder sort order
+  allProjects = (projects || []).slice().sort((a, b) => {
+    const oA = typeof a.sort_order === 'number' ? a.sort_order : 999999;
+    const oB = typeof b.sort_order === 'number' ? b.sort_order : 999999;
+    return oA - oB;
+  });
   const container = document.getElementById('work-grid-container');
   if (!container) return;
 
