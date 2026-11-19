@@ -6,7 +6,7 @@ async function verifyAll() {
   console.log(`[1] Homepage (GET /): Status ${homeRes.status} (Expected 200)`);
   const homeHtml = await homeRes.text();
   console.log(`    - Contains #app: ${homeHtml.includes('id="app"')}`);
-  console.log(`    - Contains Kanit Font: ${homeHtml.includes('Kanit')}`);
+  console.log(`    - Contains Inter & Instrument Serif: ${homeHtml.includes('Instrument+Serif')}`);
 
   // 2. Main JS & CSS assets
   const cssRes = await fetch('http://localhost:5173/src/styles/main.css');
