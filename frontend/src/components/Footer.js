@@ -1,20 +1,27 @@
+/**
+ * Portfolio Footer
+ */
+
 export function renderFooter() {
-  const year = new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
+
   return `
-    <footer class="site-footer">
-      <div class="container footer-inner">
-        <div class="footer-credits">
-          <strong>Shadab Alam</strong> — Video Editor • Creative Technologist
+    <footer class="portfolio-footer">
+      <div class="footer-inner">
+        <div>
+          <span style="font-weight: 700; color: var(--text-highlight);">Shadab Alam</span>
+          <span style="opacity: 0.6; margin-left: 8px;">— Video Editor & Creative Technologist</span>
         </div>
 
-        <ul class="footer-links">
-          <li><a href="#top">Video Portfolio</a></li>
-          <li><a href="https://sh4dabexe.netlify.app/" target="_blank" rel="noopener noreferrer">Tech Portfolio</a></li>
-          <li><a href="https://instagram.com/sh4dabexe" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-          <li><a href="https://t.me/sh4dabexe" target="_blank" rel="noopener noreferrer">Telegram</a></li>
-          <li><a href="https://www.linkedin.com/in/sh4dabexe/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-          <li><a href="https://github.com/sh4dabexe" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-        </ul>
+        <div>
+          <a href="#hero" style="color: var(--text-highlight); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; opacity: 0.8;">
+            Back to Top ↑
+          </a>
+        </div>
+
+        <div style="font-size: 0.78rem; opacity: 0.6;">
+          © ${currentYear} Shadab Alam. All rights reserved.
+        </div>
       </div>
     </footer>
   `;
