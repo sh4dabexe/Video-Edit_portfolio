@@ -14,7 +14,7 @@ export function renderWorkSection() {
             <h2 class="section-title">Projects & Visual Stories</h2>
           </div>
 
-          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+          <div class="filter-and-sync">
             <div class="filter-bar" id="category-filter-bar">
               <button class="filter-btn active" data-category="All">All</button>
               <button class="filter-btn" data-category="Cinematic">Cinematic</button>
@@ -23,7 +23,7 @@ export function renderWorkSection() {
               <button class="filter-btn" data-category="Music Video">Music Video</button>
             </div>
 
-            <button class="btn-secondary" id="sync-refresh-btn" style="padding: 6px 14px; font-size: 0.8rem;" title="Sync new videos directly from Google Drive">
+            <button class="sync-refresh-btn" id="sync-refresh-btn" title="Sync new videos directly from Google Drive">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
               </svg>
@@ -69,10 +69,11 @@ function renderCard(project) {
         alt="Thumbnail for ${project.title}"
         class="card-thumbnail"
         loading="lazy"
-        onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22640%22 height=%22360%22 viewBox=%220 0 640 360%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23161616%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23666%22 font-family=%22sans-serif%22 font-size=%2220%22>Video Preview</text></svg>'"
+        decoding="async"
+        onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22640%22 height=%22360%22 viewBox=%220 0 640 360%22><rect width=%22100%%25%22 height=%22100%%25%22 fill=%22%23161616%22/><text x=%2250%%25%22 y=%2250%%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23666%22 font-family=%22sans-serif%22 font-size=%2220%22>Video Preview</text></svg>'"
       />
-      <div class="card-play-overlay">
-        <div class="play-badge" aria-hidden="true">
+      <div class="card-play-overlay" aria-hidden="true">
+        <div class="play-badge">
           <svg viewBox="0 0 24 24">
             <polygon points="5 3 19 12 5 21 5 3"></polygon>
           </svg>
@@ -123,7 +124,7 @@ export function updateWorkGrid(projects) {
 
   if (filtered.length === 0) {
     container.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 64px 20px; color: var(--text-muted);">
+      <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: var(--text-muted);">
         <p style="font-size: 1.1rem; margin-bottom: 8px;">No projects found in this category.</p>
         <p style="font-size: 0.9rem; color: var(--text-dim);">New videos will automatically appear here when uploaded to Google Drive.</p>
       </div>
@@ -131,8 +132,11 @@ export function updateWorkGrid(projects) {
     return;
   }
 
-  filtered.forEach(project => {
-    container.appendChild(renderCard(project));
+  filtered.forEach((project, index) => {
+    const card = renderCard(project);
+    // Staggered entrance: each card starts animating slightly after the previous
+    card.style.animationDelay = `${index * 60}ms`;
+    container.appendChild(card);
   });
 }
 
@@ -198,7 +202,7 @@ function showSyncToast(msg) {
     document.body.appendChild(toast);
   }
   toast.innerHTML = `
-    <span class="logo-dot"></span>
+    <span class="logo-dot" style="box-shadow: 0 0 10px #22C55E;"></span>
     <span>${msg}</span>
   `;
   toast.classList.add('show');

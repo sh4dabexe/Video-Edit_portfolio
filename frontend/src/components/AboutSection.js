@@ -8,8 +8,8 @@ export function renderAboutSection() {
             <h2 class="about-headline">
               Great editing isn’t just cutting footage — it’s <span class="serif-italic">orchestrating</span> how the audience feels.
             </h2>
-            <div style="margin-top: 12px;">
-              <a href="#contact" class="btn-primary" style="padding: 10px 22px; font-size: 0.9rem;">
+            <div style="margin-top: 24px;">
+              <a href="#contact" class="btn-primary" style="padding: 11px 26px; font-size: 0.92rem;">
                 <span>Let’s Collaborate</span>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -27,8 +27,8 @@ export function renderAboutSection() {
               Whether cutting high-energy short-form reels that stop the scroll, narrative commercial pieces, or cinematic visual reels, my focus is always on storytelling clarity, intentional pacing, and polished finishing.
             </p>
 
-            <div style="margin-top: 16px;">
-              <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px;">
+            <div style="margin-top: 28px;">
+              <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 14px;">
                 Editing Toolkit & Specializations
               </h4>
               <div class="skills-list">

@@ -23,7 +23,7 @@ export function renderVideoModal() {
           <div class="modal-meta-row">
             <div style="display: flex; align-items: center; gap: 8px;">
               <span class="card-category-badge" id="modal-category">Reels & Shorts</span>
-              <span id="modal-meta-info" style="font-size: 0.78rem; color: var(--text-dim);">1080p • Color Graded</span>
+              <span id="modal-meta-info" style="font-size: 0.75rem; color: var(--text-dim);">1080p • Color Graded</span>
             </div>
             <button class="modal-aspect-toggle" id="modal-ratio-toggle" title="Toggle aspect ratio view">
               📐 9:16 Fit

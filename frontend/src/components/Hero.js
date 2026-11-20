@@ -4,7 +4,7 @@ export function renderHero() {
       <div class="container">
         <div class="hero-content">
           <div class="hero-label">
-            <span class="hero-status-pulse"></span>
+            <span class="hero-status-pulse" aria-hidden="true"></span>
             <span>Available for Select Creative Projects & Commercials</span>
           </div>
 

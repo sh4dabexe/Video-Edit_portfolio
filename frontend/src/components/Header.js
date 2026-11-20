@@ -25,6 +25,7 @@ export function renderHeader() {
         <button class="burger-btn" id="burger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
           <span class="burger-line"></span>
           <span class="burger-line"></span>
+          <span class="burger-line"></span>
         </button>
       </div>
     </header>
@@ -68,15 +69,19 @@ export function initHeaderEvents() {
     link.addEventListener('click', () => toggleMenu(false));
   });
 
-  // Header background shade on scroll
-  const header = document.getElementById('site-header');
+  // Header shade on scroll (throttled)
+  let ticking = false;
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 40) {
-      header.style.background = 'rgba(0, 0, 0, 0.85)';
-      header.style.borderBottomColor = 'rgba(255, 255, 255, 0.16)';
-    } else {
-      header.style.background = 'rgba(0, 0, 0, 0.7)';
-      header.style.borderBottomColor = 'rgba(255, 255, 255, 0.12)';
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        if (window.scrollY > 40) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+        ticking = false;
+      });
+      ticking = true;
     }
   }, { passive: true });
 }

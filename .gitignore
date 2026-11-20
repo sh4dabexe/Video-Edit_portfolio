@@ -29,3 +29,6 @@ PRD.md
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Playwright CLI session artifacts
+.playwright-cli/
